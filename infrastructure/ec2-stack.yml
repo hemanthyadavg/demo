@@ -1,0 +1,63 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Create an Instance'
+
+Parameters:
+  EnvironmentType:
+    Description: 'Specify the Environment type of the stack.'
+    Type: String
+    Default: Test
+    AllowedValues:
+      - Dev
+      - Test
+      - Prod
+    ConstraintDescription: 'Specify either Dev, Test or Prod.'
+  EnvironmentName:
+    Type: String
+    Default: dev
+  InstanceTypeParameter:
+    Type: String
+    Default: t3a.micro
+  ImageId:
+    Type: String
+    Default: ami-0730362f1c4289cf4
+  VPCId:
+    Type: String
+    Default: vpc-05f27a60b80c51481
+  AvailabilityZone:
+    Type: String
+    Default: eu-west-2a
+  KeyName:
+    Type: String
+    Default: hemanthyadav
+  PrivateSubnet:
+    Type: String
+    Default: subnet-08418598767b4dca3
+
+Resources:
+  DefaultSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      VpcId: !Ref VPCId
+      GroupName: !Sub ${EnvironmentName}-default
+      GroupDescription: !Sub ${EnvironmentName}-default Security Group
+      
+
+  EC2Instance:
+    Type: "AWS::EC2::Instance"
+    Properties:
+      InstanceType: !Ref InstanceTypeParameter
+      ImageId: !Ref ImageId
+      AvailabilityZone: !Ref AvailabilityZone
+      KeyName: !Ref KeyName
+      SubnetId: !Ref PrivateSubnet
+      SecurityGroupIds:
+        - !Ref DefaultSecurityGroup
+      Tags:
+        - Key: "Schedule"
+          Value: "uk-stop-office-hours" 
+
+
+Outputs:
+  InstanceId:
+    Description: InstanceId of the newly created EC2 instance
+    Value: !Ref 'EC2Instance'
